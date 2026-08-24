@@ -19,14 +19,11 @@
     --color-upi: #2563eb;
  
  
-  /* === Breakpoints (responsive sizes) === */
-  --breakpoint-xs: 400px;   /* Extra Small devices (mobile) */
-  --breakpoint-sm: 576px;   /* Small devices (mobile) */
-  --breakpoint-md: 768px;   /* Medium devices (tablet) */
-  --breakpoint-lg: 992px;  /* Large devices (laptop) */
-  --breakpoint-xl: 1200px;  /* Extra large screens */
-  --breakpoint-2xl: 1440px; /* 2X large screens */
-  --breakpoint-3xl: 1920px; /* 3X large screens */
+  /* === Large Desktop Breakpoints === */
+  --breakpoint-xl: 1280px;  /* Standard Laptop / Monitor */
+  --breakpoint-2xl: 1536px; /* Large Laptop / Desktop */
+  --breakpoint-3xl: 1920px; /* Full HD 1080p Monitor / TV */
+  --breakpoint-4xl: 2560px; /* 2K / 4K Ultra Wide Displays */
 }
 
 html 

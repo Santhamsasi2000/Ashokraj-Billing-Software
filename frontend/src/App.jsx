@@ -1,12 +1,21 @@
-import './App.css'
+import React, { useState } from "react";
+import Header from "./components/Header";
+import POSPage from "./pages/POSPage";
+import MenuPage from "./pages/MenuPage";
+import ReportPage from "./pages/ReportPage";
 
-function App() { 
+const App = () => {
+  const [activeTab, setActiveTab] = useState("pos");
 
   return (
-    <>
-      <h1 className='font-bold text-red-800 text-5xl'>Hi</h1>
-    </>
-  )
-}
+    <div className="min-h-screen bg-slate-100 font-sans select-none">
+      <Header activeTab={activeTab} setActiveTab={setActiveTab} />
 
-export default App
+      {activeTab === "pos" && <POSPage />}
+      {activeTab === "menu" && <MenuPage />}
+      {activeTab === "reports" && <ReportPage />}
+    </div>
+  );
+};
+
+export default App;
