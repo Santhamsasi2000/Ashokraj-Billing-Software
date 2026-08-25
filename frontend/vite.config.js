@@ -8,9 +8,11 @@ export default defineConfig({
     tailwindcss()
   ],
   server: {
+    // ⬇️ ADD THIS SECTION ⬇️
+    allowedHosts: ['rifling-seismic-unwired.ngrok-free.dev'], 
     proxy: {
       '/api': {
-        target: 'http://localhost:5000', // Redirects all /api requests to Express
+        target: 'http://localhost:5000',
         changeOrigin: true,
       }
     }
