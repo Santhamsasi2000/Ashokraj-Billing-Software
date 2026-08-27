@@ -16,14 +16,9 @@ const Cart = ({ cart, setCart, orderType, period, onCheckout, checkoutLoading })
     );
   };
 
-  const removeItem = (id) => {
-    setCart((prev) => prev.filter((item) => item.id !== id));
-  };
-
   const clearCart = () => setCart([]);
 
-  const subtotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
-  const total = subtotal;
+  const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
 
   return (
     <div className="bg-white border-l border-slate-200 h-[calc(100vh-65px)] flex flex-col justify-between shadow-lg">
@@ -57,15 +52,26 @@ const Cart = ({ cart, setCart, orderType, period, onCheckout, checkoutLoading })
           <div className="h-full flex flex-col items-center justify-center text-slate-400 text-center">
             <div className="text-4xl mb-2">🍛</div>
             <p className="font-bold text-sm">No Items Added</p>
-            <p className="text-xs text-slate-400">Tap items on the left to add to bill</p>
+            <p className="text-xs text-slate-400">
+              Type code & Enter, or tap items
+            </p>
           </div>
         ) : (
           cart.map((item) => (
             <div key={item.id} className="py-3 flex items-center justify-between gap-2">
               {/* Item Info */}
               <div className="flex-1 min-w-0">
-                <h4 className="font-bold text-slate-800 text-sm truncate">{item.name}</h4>
-                <p className="text-xs text-slate-400">{item.name_ta} • ₹{item.price}</p>
+                <h4 className="font-bold text-slate-800 text-sm truncate">
+                  {item.short_code && (
+                    <span className="bg-slate-900 text-white text-[10px] px-1.5 py-0.5 rounded mr-1.5">
+                      {item.short_code}
+                    </span>
+                  )}
+                  {item.name}
+                </h4>
+                <p className="text-xs text-slate-400">
+                  {item.name_ta} • ₹{item.price}
+                </p>
               </div>
 
               {/* Quantity Controls */}
@@ -87,7 +93,7 @@ const Cart = ({ cart, setCart, orderType, period, onCheckout, checkoutLoading })
                 </button>
               </div>
 
-              {/* Total Price */}
+              {/* Line Total */}
               <div className="text-right min-w-[60px]">
                 <div className="font-extrabold text-slate-900 text-sm">
                   ₹{item.price * item.qty}
@@ -105,21 +111,32 @@ const Cart = ({ cart, setCart, orderType, period, onCheckout, checkoutLoading })
           <span className="text-amber-600">₹{total}</span>
         </div>
 
+        {/* ONLY ONE set of buttons — with F9 / F10 labels */}
         <div className="grid grid-cols-2 gap-2 pt-2">
           <button
             disabled={cart.length === 0 || checkoutLoading}
             onClick={() => onCheckout("cash")}
-            className="flex items-center justify-center gap-2 py-3.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-extrabold rounded-xl shadow transition active:scale-95 cursor-pointer"
+            className="flex flex-col items-center justify-center py-3 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-extrabold rounded-xl shadow transition active:scale-95 cursor-pointer"
           >
-            <FaMoneyBillWave className="text-xl" /> CASH (பணம்)
+            <div className="flex items-center gap-2">
+              <FaMoneyBillWave className="text-lg" /> CASH (பணம்)
+            </div>
+            <span className="text-[10px] bg-emerald-800 px-2 py-0.5 rounded mt-1 opacity-90">
+              Press F9
+            </span>
           </button>
 
           <button
             disabled={cart.length === 0 || checkoutLoading}
             onClick={() => onCheckout("upi")}
-            className="flex items-center justify-center gap-2 py-3.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-extrabold rounded-xl shadow transition active:scale-95 cursor-pointer"
+            className="flex flex-col items-center justify-center py-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-extrabold rounded-xl shadow transition active:scale-95 cursor-pointer"
           >
-            <FaQrcode className="text-xl" /> UPI (ஜிபே)
+            <div className="flex items-center gap-2">
+              <FaQrcode className="text-lg" /> UPI (ஜிபே)
+            </div>
+            <span className="text-[10px] bg-blue-800 px-2 py-0.5 rounded mt-1 opacity-90">
+              Press F10
+            </span>
           </button>
         </div>
       </div>

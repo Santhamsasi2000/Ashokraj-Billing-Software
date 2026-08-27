@@ -1,6 +1,6 @@
 const { db } = require("../config/db");
 
-// Get menu items (filtered by period optional)
+// Get menu items
 const getMenuItems = (req, res) => {
   try {
     const { period } = req.query;
@@ -12,7 +12,7 @@ const getMenuItems = (req, res) => {
       params.push(period);
     }
 
-    query += " ORDER BY id ASC";
+    query += " ORDER BY CAST(short_code AS INTEGER) ASC"; // Sort by Code Number
     const items = db.prepare(query).all(...params);
     res.json(items);
   } catch (error) {
@@ -20,36 +20,42 @@ const getMenuItems = (req, res) => {
   }
 };
 
-// Add new menu item
+// Add new menu item (ADDED short_code)
 const addMenuItem = (req, res) => {
   try {
-    const { name, name_ta, price, period, is_veg } = req.body;
+    const { short_code, name, name_ta, price, period, is_veg } = req.body;
     const stmt = db.prepare(
-      "INSERT INTO menu_items (name, name_ta, price, period, is_veg) VALUES (?, ?, ?, ?, ?)"
+      "INSERT INTO menu_items (short_code, name, name_ta, price, period, is_veg) VALUES (?, ?, ?, ?, ?, ?)"
     );
-    const result = stmt.run(name, name_ta, price, period, is_veg ? 1 : 0);
+    const result = stmt.run(short_code, name, name_ta, price, period, is_veg ? 1 : 0);
     res.json({ success: true, id: result.lastInsertRowid });
   } catch (error) {
+    if (error.code === "SQLITE_CONSTRAINT_UNIQUE") {
+      return res.status(400).json({ error: `Code '${req.body.short_code}' is already used!` });
+    }
     res.status(500).json({ error: error.message });
   }
 };
 
-// Update menu item
+// Update menu item (ADDED short_code)
 const updateMenuItem = (req, res) => {
   try {
     const { id } = req.params;
-    const { name, name_ta, price, period, is_veg } = req.body;
+    const { short_code, name, name_ta, price, period, is_veg } = req.body;
     const stmt = db.prepare(
-      "UPDATE menu_items SET name = ?, name_ta = ?, price = ?, period = ?, is_veg = ? WHERE id = ?"
+      "UPDATE menu_items SET short_code = ?, name = ?, name_ta = ?, price = ?, period = ?, is_veg = ? WHERE id = ?"
     );
-    stmt.run(name, name_ta, price, period, is_veg ? 1 : 0, id);
+    stmt.run(short_code, name, name_ta, price, period, is_veg ? 1 : 0, id);
     res.json({ success: true, message: "Item updated successfully" });
   } catch (error) {
+    if (error.code === "SQLITE_CONSTRAINT_UNIQUE") {
+      return res.status(400).json({ error: `Code '${req.body.short_code}' is already used!` });
+    }
     res.status(500).json({ error: error.message });
   }
 };
 
-// Delete (soft delete) menu item
+// Delete menu item
 const deleteMenuItem = (req, res) => {
   try {
     const { id } = req.params;

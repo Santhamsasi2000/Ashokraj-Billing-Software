@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FaPlus, FaTrash, FaEdit, FaUtensils, FaSun, FaCloudSun, FaMoon } from "react-icons/fa";
+import { FaPlus, FaTrash, FaEdit, FaSun, FaCloudSun, FaMoon } from "react-icons/fa";
 import { getMenuItems, addMenuItem, updateMenuItem, deleteMenuItem } from "../services/api";
 
 const MenuPage = () => {
@@ -7,10 +7,11 @@ const MenuPage = () => {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // Form State
+  // Form State (Added short_code)
   const [showModal, setShowModal] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [formData, setFormData] = useState({
+    short_code: "",
     name: "",
     name_ta: "",
     price: "",
@@ -37,6 +38,7 @@ const MenuPage = () => {
   const handleOpenAddModal = () => {
     setEditingItem(null);
     setFormData({
+      short_code: "",
       name: "",
       name_ta: "",
       price: "",
@@ -49,6 +51,7 @@ const MenuPage = () => {
   const handleOpenEditModal = (item) => {
     setEditingItem(item);
     setFormData({
+      short_code: item.short_code || "",
       name: item.name,
       name_ta: item.name_ta,
       price: item.price,
@@ -60,8 +63,8 @@ const MenuPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.name || !formData.price) {
-      alert("Please fill in item name and price!");
+    if (!formData.short_code || !formData.name || !formData.price) {
+      alert("Please fill in Code, Name, and Price!");
       return;
     }
 
@@ -76,7 +79,8 @@ const MenuPage = () => {
       setShowModal(false);
       fetchItems();
     } catch (err) {
-      alert("❌ Operation failed: " + err.message);
+      // Show backend error (e.g., if code already exists)
+      alert("❌ " + (err.response?.data?.error || err.message));
     }
   };
 
@@ -150,6 +154,7 @@ const MenuPage = () => {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-slate-900 text-slate-200 text-sm">
+                <th className="p-4">Code</th>
                 <th className="p-4">Type</th>
                 <th className="p-4">Item Name (English)</th>
                 <th className="p-4">Item Name (தமிழ்)</th>
@@ -160,6 +165,9 @@ const MenuPage = () => {
             <tbody className="divide-y divide-slate-100 text-slate-800 font-medium text-sm">
               {items.map((item) => (
                 <tr key={item.id} className="hover:bg-slate-50 transition">
+                  <td className="p-4 font-black text-amber-600 text-lg">
+                    {item.short_code}
+                  </td>
                   <td className="p-4">
                     <span
                       className={`text-[11px] font-extrabold px-2.5 py-1 rounded-md ${
@@ -177,14 +185,14 @@ const MenuPage = () => {
                   <td className="p-4 text-right space-x-2">
                     <button
                       onClick={() => handleOpenEditModal(item)}
-                      className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition"
+                      className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition cursor-pointer"
                       title="Edit"
                     >
                       <FaEdit />
                     </button>
                     <button
                       onClick={() => handleDelete(item.id, item.name)}
-                      className="p-2 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg transition"
+                      className="p-2 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg transition cursor-pointer"
                       title="Delete"
                     >
                       <FaTrash />
@@ -206,6 +214,37 @@ const MenuPage = () => {
             </h3>
 
             <form onSubmit={handleSubmit} className="space-y-3">
+              
+              {/* CODE & PRICE ROW */}
+              <div className="grid grid-cols-2 gap-3 bg-amber-50 p-3 rounded-xl border border-amber-200">
+                <div>
+                  <label className="block text-xs font-bold text-amber-900 mb-1">
+                    Code No (e.g., 25)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Code"
+                    value={formData.short_code}
+                    onChange={(e) => setFormData({ ...formData, short_code: e.target.value })}
+                    className="w-full p-2.5 border border-amber-300 rounded-lg font-black text-lg text-center focus:outline-amber-600"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-amber-900 mb-1">
+                    Price (₹)
+                  </label>
+                  <input
+                    type="number"
+                    placeholder="50"
+                    value={formData.price}
+                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                    className="w-full p-2.5 border border-amber-300 rounded-lg font-black text-lg text-center focus:outline-amber-600"
+                    required
+                  />
+                </div>
+              </div>
+
               <div>
                 <label className="block text-xs font-bold text-slate-600 mb-1">
                   Item Name (English)
@@ -215,7 +254,7 @@ const MenuPage = () => {
                   placeholder="e.g. Dosa"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full p-2.5 border border-slate-300 rounded-xl font-bold text-sm focus:outline-amber-500"
+                  className="w-full p-2.5 border border-slate-300 rounded-xl font-bold text-sm focus:outline-slate-500"
                   required
                 />
               </div>
@@ -229,39 +268,23 @@ const MenuPage = () => {
                   placeholder="e.g. தோசை"
                   value={formData.name_ta}
                   onChange={(e) => setFormData({ ...formData, name_ta: e.target.value })}
-                  className="w-full p-2.5 border border-slate-300 rounded-xl font-bold text-sm focus:outline-amber-500"
+                  className="w-full p-2.5 border border-slate-300 rounded-xl font-bold text-sm focus:outline-slate-500"
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-bold text-slate-600 mb-1">
-                    Price (₹)
-                  </label>
-                  <input
-                    type="number"
-                    placeholder="50"
-                    value={formData.price}
-                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                    className="w-full p-2.5 border border-slate-300 rounded-xl font-bold text-sm focus:outline-amber-500"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-slate-600 mb-1">
-                    Meal Period
-                  </label>
-                  <select
-                    value={formData.period}
-                    onChange={(e) => setFormData({ ...formData, period: e.target.value })}
-                    className="w-full p-2.5 border border-slate-300 rounded-xl font-bold text-sm bg-white focus:outline-amber-500"
-                  >
-                    <option value="morning">Morning</option>
-                    <option value="afternoon">Afternoon</option>
-                    <option value="dinner">Dinner</option>
-                  </select>
-                </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-600 mb-1">
+                  Meal Period
+                </label>
+                <select
+                  value={formData.period}
+                  onChange={(e) => setFormData({ ...formData, period: e.target.value })}
+                  className="w-full p-2.5 border border-slate-300 rounded-xl font-bold text-sm bg-white focus:outline-slate-500"
+                >
+                  <option value="morning">Morning</option>
+                  <option value="afternoon">Afternoon</option>
+                  <option value="dinner">Dinner</option>
+                </select>
               </div>
 
               <div>
@@ -298,13 +321,13 @@ const MenuPage = () => {
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="flex-1 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-xl text-sm"
+                  className="flex-1 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-xl text-sm cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-extrabold rounded-xl text-sm"
+                  className="flex-1 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-extrabold rounded-xl text-sm cursor-pointer"
                 >
                   Save Item
                 </button>
