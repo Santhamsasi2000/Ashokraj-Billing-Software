@@ -14,7 +14,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // 1. Middlewares
-app.use(cors({ origin: "http://localhost:5173" }));
+app.use(cors());
 app.use(express.json());
 
 // 2. Initialize SQLite Database
@@ -25,11 +25,14 @@ app.use("/api/menu", menuRoutes);
 app.use("/api/bills", billRoutes);
 app.use("/api/reports", reportRoutes);
 
+// ⬇️ SERVE REACT FRONTEND IN PRODUCTION ⬇️
+const frontendDistPath = path.join(__dirname, "..", "frontend", "dist");
+app.use(express.static(frontendDistPath));
 
-// 3. Test route
-app.get('/', (req, res) => {
-  res.send({ message: "Ashokraj Billing API is running!" });
+app.get("*", (req, res) => {
+  res.sendFile(path.join(frontendDistPath, "index.html"));
 });
+
 
 // 4. Start server
 app.listen(PORT, () => {

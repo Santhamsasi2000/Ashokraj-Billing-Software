@@ -1,0 +1,46 @@
+{
+  "name": "ashokraj-billing-software",
+  "version": "1.0.0",
+  "description": "Ashokraj Restaurant Billing Software",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build:frontend": "cd frontend && npm run build",
+    "dist": "npm run build:frontend && electron-builder"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Santhamsasi2000/Ashokraj-Billing-Software.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Santhamsasi2000/Ashokraj-Billing-Software/issues"
+  },
+  "homepage": "https://github.com/Santhamsasi2000/Ashokraj-Billing-Software#readme",
+  "build": {
+    "appId": "com.ashokraj.billing",
+    "productName": "Ashokraj Billing Software",
+    "win": {
+      "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Ashokraj Billing"
+    },
+    "files": [
+      "main.js",
+      "backend/**/*",
+      "frontend/dist/**/*"
+    ]
+  },
+  "devDependencies": {
+    "electron": "^34.0.0",
+    "electron-builder": "^26.15.3"
+  }
+}
