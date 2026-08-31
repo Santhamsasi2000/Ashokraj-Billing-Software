@@ -1,6 +1,7 @@
 const { app, BrowserWindow } = require("electron");
 const path = require("path");
 const { fork } = require("child_process");
+const http = require("http");
 
 let mainWindow;
 let serverProcess;
@@ -17,21 +18,27 @@ function createWindow() {
     minWidth: 1024,
     minHeight: 700,
     title: "Ashokraj Restaurant Billing",
-    icon: path.join(__dirname, "frontend", "public", "icon.ico"), // Optional Icon
-    autoHideMenuBar: true, // Hides top file menu for clean POS look
+    autoHideMenuBar: true,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
     },
   });
 
-  // Maximize Window on launch for POS counter feel
   mainWindow.maximize();
 
-  // 3. Load the Local Server URL
-  setTimeout(() => {
-    mainWindow.loadURL("http://localhost:5000");
-  }, 1000); // 1 sec delay to ensure Express server is ready
+  // 3. Smart Server Poll: Checks http://localhost:5000 every 300ms until ready
+  const pollServer = () => {
+    http
+      .get("http://localhost:5000", (res) => {
+        mainWindow.loadURL("http://localhost:5000");
+      })
+      .on("error", () => {
+        setTimeout(pollServer, 300); // Retry after 300ms if server is still starting
+      });
+  };
+
+  pollServer();
 
   mainWindow.on("closed", () => {
     mainWindow = null;
